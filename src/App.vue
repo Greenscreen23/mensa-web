@@ -263,7 +263,8 @@ const api = new Api({
 });
 
 const locale = navigator.language;
-const translations = navigator.language == "de" ? de : en;
+const normalizedLanguage = new Intl.Locale(locale).language;
+const translations = normalizedLanguage == "de" ? de : en;
 
 const loadedMeals = ref<Meal[]>([]);
 const todaysDate = new Date();
@@ -301,7 +302,7 @@ async function loadMeals(date: Date) {
     if (!mensa.value) return;
     const response = await api.meals.getMeals(mensa.value, {
       date: date.toISOString().split("T")[0],
-      lang: locale == "de" ? "de" : "en",
+      lang: normalizedLanguage == "de" ? "de" : "en",
     });
 
     if (response.error) {
