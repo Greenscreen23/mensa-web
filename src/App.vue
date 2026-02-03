@@ -273,7 +273,7 @@ const api = new Api({
 });
 
 const locale = navigator.language;
-let normalizedLanguage = ref(new Intl.Locale(locale).language);
+const normalizedLanguage = ref(new Intl.Locale(locale).language);
 const translations = normalizedLanguage.value == "de" ? de : en;
 
 const loadedMeals = ref<Meal[]>([]);
