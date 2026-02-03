@@ -7,6 +7,7 @@
           @click.stop="drawer = !drawer"
         ></v-app-bar-nav-icon>
         <v-app-bar-title> Mensa {{ mensa }} </v-app-bar-title>
+        <v-btn @click="toggleLanguage()" :icon="mdiTranslate"></v-btn>
         <v-btn @click="theme.toggle()" :icon="mdiThemeLightDark"></v-btn>
       </v-app-bar>
 
@@ -241,7 +242,16 @@ import { useTheme } from "vuetify";
 import { de, en } from "@/lib/translations";
 import type { Configuration } from "@/lib/config";
 
-import { mdiChevronLeft, mdiChevronRight,mdiThemeLightDark,mdiInformation,mdiClose,mdiMoonWaxingCrescent,mdiWhiteBalanceSunny } from '@mdi/js'
+import {
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiThemeLightDark,
+  mdiInformation,
+  mdiClose,
+  mdiMoonWaxingCrescent,
+  mdiWhiteBalanceSunny,
+  mdiTranslate,
+} from "@mdi/js";
 
 declare global {
   // Note the capital "W"
@@ -263,8 +273,8 @@ const api = new Api({
 });
 
 const locale = navigator.language;
-const normalizedLanguage = new Intl.Locale(locale).language;
-const translations = normalizedLanguage == "de" ? de : en;
+let normalizedLanguage = ref(new Intl.Locale(locale).language);
+const translations = normalizedLanguage.value == "de" ? de : en;
 
 const loadedMeals = ref<Meal[]>([]);
 const todaysDate = new Date();
@@ -285,6 +295,15 @@ enum State {
 
 const state = ref<State>(State.LOADING);
 
+function toggleLanguage() {
+  if (normalizedLanguage.value === "de") {
+    normalizedLanguage.value = "en";
+  } else {
+    normalizedLanguage.value = "de";
+  }
+  console.log(normalizedLanguage);
+}
+
 function increaseDate(inc: number) {
   const newDate = new Date(date.value);
   newDate.setDate(date.value.getDate() + inc);
@@ -302,7 +321,7 @@ async function loadMeals(date: Date) {
     if (!mensa.value) return;
     const response = await api.meals.getMeals(mensa.value, {
       date: date.toISOString().split("T")[0],
-      lang: normalizedLanguage == "de" ? "de" : "en",
+      lang: normalizedLanguage.value == "de" ? "de" : "en",
     });
 
     if (response.error) {
@@ -373,7 +392,7 @@ const mealList = computed(() => {
         : mdiWhiteBalanceSunny,
       title: meal.name,
       subtitle: `<strong class="text-primary">${meal.studentPrice.toFixed(
-        2
+        2,
       )}€</strong> &bull; ${shortFeatureString} &bull; ${shortAllergenString} &bull; ${shortAdditivesString}`,
       meal: meal,
     };
@@ -396,6 +415,10 @@ watch(date, async (newDate, oldDate) => {
   await loadMeals(newDate);
 });
 watch(location, async (newLocation, oldLocation) => {
+  date.value.setHours(12);
+  await loadMeals(date.value);
+});
+watch(normalizedLanguage, async (newLanguage, oldLanguage) => {
   date.value.setHours(12);
   await loadMeals(date.value);
 });
