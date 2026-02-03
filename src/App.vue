@@ -274,7 +274,9 @@ const api = new Api({
 
 const locale = navigator.language;
 const normalizedLanguage = ref(new Intl.Locale(locale).language);
-const translations = normalizedLanguage.value == "de" ? de : en;
+const translations = computed(() =>
+  normalizedLanguage.value == "de" ? de : en,
+);
 
 const loadedMeals = ref<Meal[]>([]);
 const todaysDate = new Date();
@@ -368,10 +370,10 @@ loadMeals(date.value);
 const mealList = computed(() => {
   if (!loadedMeals.value.length) {
     if (state.value == State.EMPTY) {
-      return [{ type: "subheader", title: translations.nomeals }];
+      return [{ type: "subheader", title: translations.value.nomeals }];
     }
     if (state.value == State.LOADING) {
-      return [{ type: "subheader", title: translations.loading }];
+      return [{ type: "subheader", title: translations.value.loading }];
     }
   }
 
