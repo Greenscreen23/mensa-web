@@ -303,7 +303,6 @@ function toggleLanguage() {
   } else {
     normalizedLanguage.value = "de";
   }
-  console.log(normalizedLanguage);
 }
 
 function increaseDate(inc: number) {
